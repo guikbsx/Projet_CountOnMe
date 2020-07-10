@@ -81,33 +81,41 @@ class Calculator {
     }
     
     func addEqual() {
+        
+        ///Vérifie que ça ne finit par un opérateur
         guard expressionIsCorrect else {
             alertMessage?("Entrez une expression correcte !")
             return
         }
         
+        ///Vérifie qu'il y a assez d'éléments pour faire le cacul
         guard expressionHaveEnoughElement else {
             alertMessage?("Démarrez un nouveau calcul !")
             return
         }
         
+        
+        ///Vérifie qu'il n'y a pas de division par 0
         guard !isDivideByZero else {
             alertMessage?("Impossible de diviser par 0 !")
             calcul = ""
             return
         }
         
+        ///Stocke les données des éléments en local pour les traiter
         var operationsToReduce = elements
         
+        ///Tant qu'il y a plus d'un élément à calculer...
         while operationsToReduce.count > 1 {
-            /*NUMBER 1*/ guard var left: Double = Double(operationsToReduce[0]) else { return }
-            /*OPERATOR*/ var operand = operationsToReduce[1]
-            /*NUMBER 2*/ guard var right: Double = Double(operationsToReduce[2]) else { return }
-            
             let result: Double
             var operandIndex = 1
             
-            ///Check s'il y a une multi ou division
+            ///1. Récupère les premiers nombres et opérateurs nécessaires au calcul
+            guard var left: Double = Double(operationsToReduce[0]) else { return }
+            var operand = operationsToReduce[1]
+            guard var right: Double = Double(operationsToReduce[2]) else { return }
+            
+            ///2. Check les priorités : s'il y a une multi ou division
             if let index = operationsToReduce.firstIndex(where: { $0 == "x" || $0 == "÷" }) {
                 operandIndex = index
                 if let newLeft = Double(operationsToReduce[index - 1]) { left = newLeft }
@@ -115,19 +123,26 @@ class Calculator {
                 if let newRight = Double(operationsToReduce[index + 1]) { right = newRight }
             }
             
+            ///3. Effectue le calcul
             result = calculate(left: left, right: right, operand: operand)
             
+            ///4. Supprime le calcul effectué dans le tableau d'éléments
             for _ in 1...3 {
                 operationsToReduce.remove(at: operandIndex - 1)
             }
             
+            ///5. Ajoute le résultat du calcul à la place du premier nombre du calcul précédent
             operationsToReduce.insert(format(result: result), at: operandIndex - 1 )
         }
         
+        ///6. Récupère le résultat des éléments...
         guard let finalResult = operationsToReduce.first else { return }
+        
+        ///7. Affiche le résultat du calcul des éléments
         calcul.append("\n= \(finalResult)")
     }
 
+    ///Effectue le calcul entre deux nombres et un opérateur
     func calculate(left: Double, right: Double, operand: String) -> Double {
         let result: Double
         switch operand {
@@ -140,7 +155,7 @@ class Calculator {
         return result
     }
     
-    ///Formatter le résultat pour éviter les décimals à l'infini
+    ///Formatte le résultat pour éviter les décimals à l'infini
     private func format(result: Double) -> String {
         let formatter = NumberFormatter()
         formatter.maximumFractionDigits = 3
