@@ -36,7 +36,7 @@ class ViewController: UIViewController {
     //MARK:- Init
     override func viewDidLoad() {
         super.viewDidLoad()
-        bind()
+        configure()
     }
     
     //MARK:- Function
@@ -47,7 +47,7 @@ class ViewController: UIViewController {
         self.present(alertVC, animated: true, completion: nil)
     }
 
-    func bind(){
+    func configure(){
         calculator.alertMessage = alertMessage
         calculator.calculInView = { calcul in
             self.textView.text = calcul
