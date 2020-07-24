@@ -1,5 +1,5 @@
 //
-//  Stan.swift
+//  Calculator.swift
 //  CountOnMe
 //
 //  Created by Guillaume Bisiaux on 10/07/2020.
@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 
 class Calculator {
     
@@ -108,38 +107,30 @@ class Calculator {
         ///Tant qu'il y a plus d'un élément à calculer...
         while operationsToReduce.count > 1 {
             let result: Double
-            var operandIndex = 1
+            let operandIndex = operationsToReduce.firstIndex(where: { $0 == "x" || $0 == "÷" }) ?? 1
             
             ///1. Récupère les premiers nombres et opérateurs nécessaires au calcul
-            guard var left: Double = Double(operationsToReduce[0]) else { return }
-            var operand = operationsToReduce[1]
-            guard var right: Double = Double(operationsToReduce[2]) else { return }
-            
-            ///2. Check les priorités : s'il y a une multi ou division
-            if let index = operationsToReduce.firstIndex(where: { $0 == "x" || $0 == "÷" }) {
-                operandIndex = index
-                if let newLeft = Double(operationsToReduce[index - 1]) { left = newLeft }
-                operand = operationsToReduce[index]
-                if let newRight = Double(operationsToReduce[index + 1]) { right = newRight }
-            }
-            
-            ///3. Effectue le calcul
+            guard let left: Double = Double(operationsToReduce[operandIndex-1]) else { return }
+            let operand = operationsToReduce[1]
+            guard let right: Double = Double(operationsToReduce[operandIndex+1]) else { return }
+
+            ///2. Effectue le calcul
             result = calculate(left: left, right: right, operand: operand)
             
-            ///4. Supprime le calcul effectué dans le tableau d'éléments
+            ///3. Supprime le calcul effectué dans le tableau d'éléments
             for _ in 1...3 {
                 operationsToReduce.remove(at: operandIndex - 1)
             }
             
-            ///5. Ajoute le résultat du calcul à la place du premier nombre du calcul précédent
+            ///4. Ajoute le résultat du calcul à la place du premier nombre du calcul précédent
             operationsToReduce.insert(format(result: result), at: operandIndex - 1 )
         }
         
-        ///6. Récupère le résultat des éléments...
+        ///5. Récupère le résultat des éléments...
         guard let finalResult = operationsToReduce.first else { return }
         
-        ///7. Affiche le résultat du calcul des éléments
-        calcul.append("\n= \(finalResult)")
+        ///6. Affiche le résultat du calcul des éléments
+        calcul.append(" = \(finalResult)")
     }
 
     ///Effectue le calcul entre deux nombres et un opérateur
