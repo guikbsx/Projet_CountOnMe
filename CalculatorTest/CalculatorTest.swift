@@ -18,20 +18,17 @@ class CalculatorTest: XCTestCase {
         calculator = Calculator()
     }
     
+    func testGivenAddNumber_WhenAddNumber_ThenReturnNumber() {
+        calculator.addNumbers(numbers: "3")
+        XCTAssertTrue(calculator.calcul == "3")
+    }
+    
     func testGivenExpressionIsCorrect_WhenStringGreaterThanOrEqualTo3_ThenReturnTrue() {
         calculator.addNumbers(numbers: "2")
         calculator.addOperator(with: "+")
         calculator.addNumbers(numbers: "2")
         calculator.addEqual()
         XCTAssertEqual(calculator.calcul, "2 + 2 = 4")
-    }
-    
-    func testGivenNumberOne_WhenExpressionDontHaveEnoughElement_ThenAlertMessage() {
-        calculator.addNumbers(numbers: "5")
-        calculator.addEqual()
-        
-        //Erreur: Démarrez un nouveau calcul !
-        XCTAssertEqual(calculator.calcul, "5")
     }
     
     func testGivenCanAddOperator_WhenCanAddOperator_ThenReturnTrue() {
@@ -44,38 +41,126 @@ class CalculatorTest: XCTestCase {
         XCTAssertTrue(calculator.canAddOperator)
     }
     
-    func testGivenNumberOne_WhenTryDivideByZero_ThenInitialiseNil() {
+    func testGivenDeleteField_WhenHaveCalculation_ThenDeleteAll() {
+        calculator.addNumbers(numbers: "1")
+        
+        calculator.deleteAll()
+        XCTAssertEqual(calculator.calcul, "")
+    }
+    
+    func testGivenDelete_WhenCanDelete_ThenDelete() {
+        calculator.addNumbers(numbers: "1")
+        
+        calculator.delete()
+        XCTAssertEqual(calculator.calcul, "")
+    }
+    
+    func testGivenNumberOne_WhenExpressionDontHaveEnoughElement_ThenAlertMessage() {
+        calculator.addNumbers(numbers: "5")
+        //Erreur: Démarrez un nouveau calcul !
+        let expectation = XCTestExpectation(description: "")
+        calculator.alertMessage = { msg in
+            XCTAssert(msg == "Démarrez un nouveau calcul !")
+            expectation.fulfill()
+        }
+        calculator.addEqual()
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+
+    func testGivenNumberOne_WhenTryDivideByZero_ThenAlertMessage() {
         calculator.addNumbers(numbers: "1")
         calculator.addOperator(with: "÷")
         calculator.addNumbers(numbers: "0")
-        calculator.addEqual()
         
-        //Erreur: Impossible de diviser par 0
-        XCTAssertEqual(calculator.calcul, "")
+        let expectation = XCTestExpectation(description: "")
+        calculator.alertMessage = { msg in
+            XCTAssert(msg == "Impossible de diviser par 0 !")
+            expectation.fulfill()
+        }
+        
+        calculator.addEqual()
+        wait(for: [expectation], timeout: 1.0)
     }
     
-    func testGivenAddNumber_WhenAddNumber_ThenReturnNumber() {
-        calculator.addNumbers(numbers: "3")
-        XCTAssertTrue(calculator.calcul == "3")
-    }
     
-    func testGivenPresentationCalcul_WhenTryMultiplicationOrAddition_ThenShowAlert() {
+    
+    func testGivenMultiplication_WhenTryAddition_ThenAlertMessage() {
         calculator.calcul.removeAll()
-        calculator.calculInView?("0")
+        calculator.calculInView?("")
         calculator.addOperator(with: "x")
         calculator.addOperator(with: "+")
         
-        //Erreur: Vous ne pouvez pas commencez par un opérateur !
-        XCTAssertEqual(calculator.calcul, "")
+        let expectation = XCTestExpectation(description: "")
+        calculator.alertMessage = { msg in
+            XCTAssert(msg == "Entrez une expression correcte !")
+            expectation.fulfill()
+        }
+        
+        calculator.addEqual()
+        wait(for: [expectation], timeout: 1.0)
     }
     
     func testGivenNumberOne_WhenDoFormat_ThenGiveResult() {
         calculator.addNumbers(numbers: "1")
         calculator.addOperator(with: "÷")
         calculator.addNumbers(numbers: "3")
+        
+        calculator.addEqual()
+        XCTAssertEqual(calculator.calcul, "1 ÷ 3 = 0.333")
+    }
+        
+    func testGivenPriority_WhenAddMultiplicationAndAddition_ThenGiveResult() {
+        calculator.addNumbers(numbers: "1")
+        calculator.addOperator(with: "+")
+        calculator.addNumbers(numbers: "2")
+        calculator.addOperator(with: "x")
+        calculator.addNumbers(numbers: "3")
+        
+        calculator.addEqual()
+        XCTAssertEqual(calculator.calcul, "1 + 2 x 3 = 7")
+    }
+    
+    func testExpressionHaveResult_WhenAddOperator_ThenGiveResult() {
+        calculator.addNumbers(numbers: "1")
+        calculator.addOperator(with: "+")
+        calculator.addNumbers(numbers: "2")
+        calculator.addEqual()
+
+        XCTAssertTrue(calculator.expressionHaveResult)
+        calculator.addOperator(with: "+")
+        XCTAssertEqual(calculator.calcul, "3 + ")
+    }
+    
+    func testExpressionHaveResult_WhenAddNumber_ThenGiveResult() {
+        calculator.addNumbers(numbers: "1")
+        calculator.addOperator(with: "+")
+        calculator.addNumbers(numbers: "2")
+        calculator.addEqual()
+
+        XCTAssertTrue(calculator.expressionHaveResult)
+        calculator.addNumbers(numbers: "1")
+        XCTAssertEqual(calculator.calcul, "1")
+    }
+    
+    func testExpressionHaveResult_WhenDelete_ThenGiveResult() {
+        calculator.addNumbers(numbers: "1")
+        calculator.addOperator(with: "+")
+        calculator.addNumbers(numbers: "2")
         calculator.addEqual()
         
-        XCTAssertEqual(calculator.calcul, "1 ÷ 3 = 0.333")
+        calculator.delete()
+        XCTAssertEqual(calculator.calcul, "")
+    }
+    
+    func testDeleteOperator_WhenAddOperator_ThenGiveResult() {
+        calculator.addNumbers(numbers: "1")
+        calculator.addOperator(with: "+")
+        calculator.addNumbers(numbers: "2")
+        calculator.addEqual()
+        calculator.addOperator(with: "+")
+        calculator.delete()
+        XCTAssertEqual(calculator.calcul, "3")
     }
     
 }

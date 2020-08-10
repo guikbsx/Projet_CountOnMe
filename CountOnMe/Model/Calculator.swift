@@ -14,12 +14,14 @@ class Calculator {
     
     var alertMessage: ((String) -> Void)?
     var calculInView: ((String) -> Void)?
-    
+        
     var calcul: String {
         didSet {
             calculInView?(calcul)
         }
     }
+    
+    var result = ""
     
     private var elements: [String] {
         return calcul.split(separator: " ").map { "\($0)" }
@@ -45,15 +47,6 @@ class Calculator {
         return calcul.contains("÷ 0")
     }
     
-    var isPossibleToStartWithNumber : Bool {
-        if calcul >= "0" && calcul <= "9" {
-            return elements.count >= 1
-        } else {
-            alertMessage?("Démarrez plutôt avec un chiffre. 😅")
-        }
-        return false
-    }
-    
     //MARK:- Init
     
     init() {
@@ -70,12 +63,37 @@ class Calculator {
     }
     
     func addOperator(with mathOperator: String) {
-        if isPossibleToStartWithNumber {
-            if canAddOperator {
-                calcul.append(" \(mathOperator) ")
-            } else {
-                alertMessage?("Un operateur est déja mis !")
-            }
+        if expressionHaveResult {
+            calcul.removeAll()
+            calcul.append(String(result))
+        }
+        
+        if canAddOperator {
+            calcul.append(" \(mathOperator) ")
+        } else {
+            alertMessage?("Un operateur est déja mis !")
+        }
+    }
+    
+    func deleteAll() {
+        calcul.removeAll()
+        calculInView?("")
+    }
+    
+    func delete() {
+        guard calcul.count >= 1 else { return }
+        
+        if expressionHaveResult {
+            calcul.removeAll()
+            calcul.append(String(result))
+        }
+        
+        if canAddOperator {
+            calcul.removeLast()
+        } else {
+            calcul.removeLast()
+            calcul.removeLast()
+            calcul.removeLast()
         }
     }
     
@@ -111,7 +129,7 @@ class Calculator {
             
             ///1. Récupère les premiers nombres et opérateurs nécessaires au calcul
             guard let left: Double = Double(operationsToReduce[operandIndex-1]) else { return }
-            let operand = operationsToReduce[1]
+            let operand = operationsToReduce[operandIndex]
             guard let right: Double = Double(operationsToReduce[operandIndex+1]) else { return }
 
             ///2. Effectue le calcul
@@ -131,6 +149,7 @@ class Calculator {
         
         ///6. Affiche le résultat du calcul des éléments
         calcul.append(" = \(finalResult)")
+        result = finalResult
     }
 
     ///Effectue le calcul entre deux nombres et un opérateur

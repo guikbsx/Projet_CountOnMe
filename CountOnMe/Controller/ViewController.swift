@@ -33,6 +33,14 @@ class ViewController: UIViewController {
         calculator.addEqual()
     }
     
+    @IBAction func didTapACButton(_ sender: UIButton) {
+        calculator.deleteAll()
+    }
+    
+    @IBAction func didTapBackButton(_ sender: UIButton) {
+        calculator.delete()
+    }
+    
     //MARK:- Init
     override func viewDidLoad() {
         super.viewDidLoad()
